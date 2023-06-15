@@ -1,0 +1,47 @@
+org: kelvin16
+app: alura-activities
+service: api
+frameworkVersion: '3'
+
+params:
+    default:
+        dbName: alura-serverless
+    dev:
+        connectionString: mongodb://localhost:27017/${self:params.default.dbName}
+        salt: CWPQM2740eoqwIpsmjPOEK2
+        jwtSecret: uoahoUIHGBhIOAYBsijlMJAoisyas89sSs78SMiapo
+    prod:
+
+provider:
+    httpApi:
+        cors: true
+    name: aws
+    runtime: nodejs16.x
+    environment:
+        MONGODB_CONNECTION_STRING: ${param:connectionString}
+        MONGODB_DB_NAME: ${param:dbName}
+        SALT: ${param:salt}
+        JWT_SECRET: ${param:jwtSecret}
+
+functions:
+    login:
+        handler: src/main/handlers.login
+        events:
+            - httpApi:
+                  path: /api/login
+                  method: post
+    sendResponse:
+        handler: src/main/handlers.sendResponse
+        events:
+            - httpApi:
+                  path: /api/results
+                  method: post
+    getResult:
+        handler: src/main/handlers.getResult
+        events:
+            - httpApi:
+                  path: /api/results/{id}
+                  method: get
+
+plugins:
+    - serverless-offline
